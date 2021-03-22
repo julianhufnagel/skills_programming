@@ -1,1 +1,1 @@
-In diesem File werdeb wir festhalten, was genau wir erreichen wollen.
+In diesem File werden wir festhalten, was genau wir erreichen wollen.
