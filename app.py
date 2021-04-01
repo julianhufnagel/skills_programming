@@ -21,7 +21,7 @@ import geopy
 from geopy.geocoders import Nominatim
 
 city = input("Please enter a city: ")
-address='city'
+address= 'city'
 geolocator = Nominatim(user_agent="Your_Name")
 location = geolocator.geocode(address)
 
