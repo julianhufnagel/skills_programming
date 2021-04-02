@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
+import json
 
 
 
@@ -74,7 +75,7 @@ daily_rain = data['daily']['rain']
 Alle relevanten Darstellungen zu Temp (Python: seaborn, plotly, …)'''
 def run_app():
     '''execute the whole program'''
-    def plot_temp(lat, lon, temp):
+    #def plot_temp(lat, lon, temp):
         
 
 
