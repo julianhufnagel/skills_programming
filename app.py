@@ -20,8 +20,7 @@ Data handling (Python: pandas, numpy, ...) -> Alle Daten strukturiert eingelesen
 import geopy
 from geopy.geocoders import Nominatim
 
-city = input("Please enter a city: ")
-address= 'city'
+address = input("Please enter a city: ")
 geolocator = Nominatim(user_agent="Your_Name")
 location = geolocator.geocode(address)
 
@@ -30,7 +29,7 @@ lon = location.longitude
 
 import requests
 api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
-part = [alerts]
+part = ['alerts']
 url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={api_key}&units=metric'
 data = requests.get(url).json()
 
