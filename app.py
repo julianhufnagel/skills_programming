@@ -33,27 +33,33 @@ part = ['alerts']
 url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={api_key}&units=metric'
 data = requests.get(url).json()
 
+
 #temperature information
 current_temperature = data['current']['temp']
-hourly_temperature = data['hourly']['temp']
-daily_temperature_day = data['daily']['temp']['day']
-daily_temperature_min = data['daily']['temp']['min']
-daily_temperature_max = data['daily']['temp']['max']
-daily_temperature_night = data['daily']['temp']['night']
+hourly_temperature = data['hourly'][0]['temp']
+daily_temperature_day = data['daily'][0]['temp']['day']
+daily_temperature_min = data['daily'][0]['temp']['min']
+daily_temperature_max = data['daily'][0]['temp']['max']
+daily_temperature_night = data['daily'][0]['temp']['night']
 
 #weather information
-current_weather_description = data['current']['weather']['description']
-current_weather_icon = data['current']['weather']['icon']
-hourly_weather_description = data['hourly']['weather']['description']
-hourly_weather_description = data['hourly']['weather']['icon']
-daily_weather_description = data['daily']['weather']['description']
-daily_weather_icon = data['daily']['weather']['icon']
+current_weather_description = data['current']['weather'][0]['description']
+current_weather_icon = data['current']['weather'][0]['icon']
+hourly_weather_description = data['hourly'][0]['weather'][0]['description']
+hourly_weather_description = data['hourly'][0]['weather'][0]['icon']
+daily_weather_description = data['daily'][0]['weather'][0]['description']
+daily_weather_icon = data['daily'][0]['weather'][0]['icon']
 
 #rain information
-minutely_precipitation = data['minutely']['precipitation']
-current_rain = data['current']['rain']
-hourly_rain = data['hourly']['rain']
-daily_rain = data['daily']['rain']
+minutely_precipitation = data['minutely'][0]['precipitation']
+
+#wind information
+daily_wind_deg = data['daily'][0]['wind_deg']
+daily_wind_speed = data['daily'][0]['wind_speed']
+hourly_wind_deg = data['hourly'][0]['wind_deg']
+hourly_wind_speed = data['hourly'][0]['wind_speed']
+current_wind_deg = data['current']['wind_deg']
+current_wind_speed = data['current']['wind_speed']
 
 
 
