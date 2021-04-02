@@ -44,11 +44,8 @@ daily_temperature_night = data['daily'][0]['temp']['night']
 
 #weather information
 current_weather_description = data['current']['weather'][0]['description']
-current_weather_icon = data['current']['weather'][0]['icon']
 hourly_weather_description = data['hourly'][0]['weather'][0]['description']
-hourly_weather_description = data['hourly'][0]['weather'][0]['icon']
 daily_weather_description = data['daily'][0]['weather'][0]['description']
-daily_weather_icon = data['daily'][0]['weather'][0]['icon']
 
 #rain information
 minutely_precipitation = data['minutely'][0]['precipitation']
