@@ -30,34 +30,50 @@ lon = location.longitude
 
 import requests
 api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
-part = ['alerts']
-url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude={part}&appid={api_key}&units=metric'
+url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
 data = requests.get(url).json()
 
-
-#temperature information
-current_temperature = data['current']['temp']
-hourly_temperature = data['hourly'][0]['temp']
-daily_temperature_day = data['daily'][0]['temp']['day']
-daily_temperature_min = data['daily'][0]['temp']['min']
-daily_temperature_max = data['daily'][0]['temp']['max']
-daily_temperature_night = data['daily'][0]['temp']['night']
-
-#weather information
+#current weather information
 current_weather_description = data['current']['weather'][0]['description']
-hourly_weather_description = data['hourly'][0]['weather'][0]['description']
-daily_weather_description = data['daily'][0]['weather'][0]['description']
-
-#rain information
-minutely_precipitation = data['minutely'][0]['precipitation']
-
-#wind information
-daily_wind_deg = data['daily'][0]['wind_deg']
-daily_wind_speed = data['daily'][0]['wind_speed']
-hourly_wind_deg = data['hourly'][0]['wind_deg']
-hourly_wind_speed = data['hourly'][0]['wind_speed']
+current_temperature = data['current']['temp']
 current_wind_deg = data['current']['wind_deg']
 current_wind_speed = data['current']['wind_speed']
+
+#hourly temperature
+from datetime import datetime
+hourly = data['hourly']
+hourly_temperature = {}
+for entry in hourly:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    hourly_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['temp'] 
+
+#daily temperature
+daily = data['daily']
+daily_temperature = {}
+for entry in daily:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    daily_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = entry['temp']
+
+#minutely precipitation
+minutely = data['minutely']
+minutely_precipitation = {}
+for entry in minutely:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    minutely_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
+
+#daily wind direction
+daily = data['daily']
+daily_wind_deg = {}
+for entry in daily:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    daily_wind_deg[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = entry['wind_deg']
+
+#daily wind speed
+daily = data['daily']
+daily_wind_speed = {}
+for entry in daily:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    daily_wind_speed[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = entry['wind_speed']
 
 
 
