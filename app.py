@@ -1,10 +1,12 @@
 '''import libraries'''
-import streamlit as st
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 import json
+from flask import Flask, render_template
+
 
 
 
@@ -20,6 +22,7 @@ Data handling (Python: pandas, numpy, ...) -> Alle Daten strukturiert eingelesen
 
 import geopy
 from geopy.geocoders import Nominatim
+
 
 address = input("Please enter a city: ")
 geolocator = Nominatim(user_agent="Your_Name")
@@ -52,7 +55,7 @@ daily = data['daily']
 daily_temperature = {}
 for entry in daily:
     dt_object = datetime.fromtimestamp(entry['dt'])
-    daily_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = entry['temp']
+    daily_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = [entry['temp']['day'], entry['temp']['min'], entry['temp']['max'], entry['temp']['night'], entry['temp']['morn']]
 
 #minutely precipitation
 minutely = data['minutely']
@@ -80,25 +83,38 @@ for entry in daily:
 
 
 
-
-
-
-
-
-
-
-
-
-
 '''2. Block (Deniz)
 Alle relevanten Darstellungen zu Temp (Python: seaborn, plotly, …)'''
-def run_app():
-    '''execute the whole program'''
-    #def plot_temp(lat, lon, temp):
-        
 
+'''define callable function requiring hourly temperature from the openweathermap API'''
+def hourly_plot_temp(hourly_temperature):
+    df = pd.DataFrame(list(hourly_temperature.items()),columns = ['Date/Time','Temperature']) #dictionary into dataframe
+    '''plotting the information with time on the X and Temperature on the Y axis'''
+    plt.plot(x = 'Date/Time', y = 'Temperature', data = df)
+    plt.title("Hourly")
+    plt.xlabel('Day/Time')
+    plt.ylabel('Temperature in °C')
+    plt.xticks(rotation='vertical')
+    plt.show()
+hourly_plot_temp(hourly_temperature) #call function to see output
 
-
+'''define callable function for daily temperature with variables from the API'''
+def daily_plot_temp(daily_temperature):
+    df = pd.DataFrame(list(daily_temperature.items()),columns = ['Date','Temperature']) #gathered data from dict into Dataframe
+    df[['day','min','max','night','morn']] = pd.DataFrame(df['Temperature'].to_list(), columns=['day','min', 'max', 'night', 'morn']) #split the data stored in the temperature list into individual columns
+    del df['Temperature'] #delete column as information is now in seperate columns
+    '''plot min, max and day temperature in a diagramm (three lines)'''
+    plt.title("Daily")
+    plt.plot('Date', 'max', data = df, label = "Max temperature", color='blue')
+    plt.plot('Date', 'min', data = df, label = "Min temperature", color='black')
+    plt.plot('Date', 'day', data = df, label = "Average temperature", color='red')
+    plt.xlabel('Date')
+    plt.ylabel('Temperature in °C')
+    plt.xticks(rotation='vertical')
+    plt.legend()
+    plt.show()
+    return df[['Date', 'min', 'max']] #return relevant values for a table
+daily_plot_temp(daily_temperature) #call function to see output
 
 
 
