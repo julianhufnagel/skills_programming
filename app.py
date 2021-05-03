@@ -90,7 +90,7 @@ Alle relevanten Darstellungen zu Temp (Python: seaborn, plotly, …)'''
 def hourly_plot_temp(hourly_temperature):
     df = pd.DataFrame(list(hourly_temperature.items()),columns = ['Date/Time','Temperature']) #dictionary into dataframe
     '''plotting the information with time on the X and Temperature on the Y axis'''
-    plt.plot(x = 'Date/Time', y = 'Temperature', data = df)
+    plt.plot('Date/Time', 'Temperature', data = df)
     plt.title("Hourly")
     plt.xlabel('Day/Time')
     plt.ylabel('Temperature in °C')
