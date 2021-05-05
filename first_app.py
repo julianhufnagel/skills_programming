@@ -5,16 +5,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 import json
-from flask import Flask, render_template
 import geopy
 from geopy.geocoders import Nominatim
+import geocoder
+import sys
 
-st.title("Weather App")
+
+#styling
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        footer:after {
+        content:'Made with love by: Elena, Julian, Janina & Deniz'; 
+        visibility: visible;
+        display: block;
+        position: relative;
+        color: #12DEFF;
+        }
+        </style>
+        """
+        
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
+st.image('./images/Weatherapp.png')
 
 
 # Functions
 
-'''define callable function for daily temperature with variables from the API'''
+#'''define callable function for daily temperature with variables from the API'''
 def daily_plot_temp(daily_temperature):
     df = pd.DataFrame(list(daily_temperature.items()),columns = ['Date','Temperature']) #gathered data from dict into Dataframe
     df[['day','min','max','night','morn']] = pd.DataFrame(df['Temperature'].to_list(), columns=['day','min', 'max', 'night', 'morn']) #split the data stored in the temperature list into individual columns
@@ -23,20 +42,34 @@ def daily_plot_temp(daily_temperature):
     df = df.set_index("Date")[["day","min","max"]]
     return df
 
-'''define callable function requiring hourly temperature from the openweathermap API'''
+#'''define callable function requiring hourly temperature from the openweathermap API'''
 def hourly_plot_temp(hourly_temperature):
     df = pd.DataFrame(list(hourly_temperature.items()),columns = ['Date/Time','Temperature']) #dictionary into dataframe
-    '''plotting the information with time on the X and Temperature on the Y axis'''
+    #'''plotting the information with time on the X and Temperature on the Y axis'''
+    df = df.set_index("Date/Time")
+    return df
+
+def daily_plot_wind(daily_wind_speed):
+    df = pd.DataFrame(list(daily_wind_speed.items()),columns = ['Date/Time','Windspeed']) #dictionary into dataframe
+    #'''plotting the information with time on the X and Windspeed on the Y axis'''
     df = df.set_index("Date/Time")
     return df
 
 # Locate
-
-address = st.text_input("Please enter a city name", "Saint Gallen")
 geolocator = Nominatim(user_agent="Your_Name")
+g = geocoder.ip('me')
+your_location = geolocator.reverse(f"{g.lat},{g.lng}")
+address = st.text_input("Please enter a city name", your_location)
+st.button('Search')
 location = geolocator.geocode(address)
-lat = location.latitude
-lon = location.longitude
+try:
+    lat = location.latitude
+    lon = location.longitude 
+except:
+    st.error("This city is not known to our system. Please try another city.")
+    st.stop()
+
+
 
 # Data import
 
@@ -89,11 +122,11 @@ for entry in daily:
 
 
 
-st.write("*Current City:   *" + address)
-
-st.write(current_weather_description)
-st.write(current_temperature)
-st.write(daily_wind_speed)
+st.write("Current City: " + address)
+st.write("Current weather description: " + current_weather_description)
+st.write(f"Current temperature: {current_temperature}°C")
+st.write("Wind speed:")
+st.bar_chart(daily_plot_wind(daily_wind_speed))
 
 
 st.write("___________________")
@@ -109,5 +142,7 @@ st.write("___________________")
 #""")
 
 
-st.line_chart(daily_plot_temp(daily_temperature))
 st.line_chart(hourly_plot_temp(hourly_temperature))
+st.line_chart(daily_plot_temp(daily_temperature))
+
+
