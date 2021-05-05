@@ -8,8 +8,6 @@ import json
 import geopy
 from geopy.geocoders import Nominatim
 import geocoder
-import sys
-
 
 #styling
 hide_menu_style = """
@@ -24,11 +22,10 @@ hide_menu_style = """
         color: #12DEFF;
         }
         </style>
-        """
-        
+        """ 
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-st.image('./images/Weatherapp.png')
+st.image('./images/weatherapp.png')
 
 
 # Functions
