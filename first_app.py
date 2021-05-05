@@ -59,9 +59,11 @@ your_location = geolocator.reverse(f"{g.lat},{g.lng}")
 address = st.text_input("Please enter a city name", your_location)
 st.button('Search')
 location = geolocator.geocode(address)
+captured_address = geolocator.reverse(f"{location.latitude},{location.longitude}")
+
 try:
     lat = location.latitude
-    lon = location.longitude 
+    lon = location.longitude
 except:
     st.error("This city is not known to our system. Please try another city.")
     st.stop()
@@ -119,7 +121,7 @@ for entry in daily:
 
 
 
-st.write("Current City: " + address)
+st.write(f"Current City: {captured_address}")
 st.write("Current weather description: " + current_weather_description)
 st.write(f"Current temperature: {current_temperature}°C")
 st.write("Wind speed:")
