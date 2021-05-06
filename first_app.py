@@ -13,6 +13,7 @@ import requests
 import datapackage
 
 px.set_mapbox_access_token('pk.eyJ1IjoiZGVubmlzc2lvIiwiYSI6ImNrbXg4NjhvZDBtOHkyb24xd3p5anE3NWYifQ.2U5ETPfl1WL1aGZFy5DZmA')
+data_cities =  pd.read_csv('data/world-cities_csv.csv')
 
 #styling
 hide_menu_style = """
@@ -59,8 +60,7 @@ def daily_plot_wind(daily_wind_speed):
     return df
 
 def find_countries(countries):
-    data =  pd.read_csv('data/world-cities_csv.csv')
-    result = data.loc[data['country'] == f'{countries}']
+    result = data_cities.loc[data_cities['country'] == f'{countries}']
     return result
 
 def find_subcountries():
@@ -75,40 +75,44 @@ def store_temperature():
     for i in range(0,len(list_destinations)):
         j = list_destinations[i]
         destination = geolocator.geocode(j)
-        dest_lat = destination.latitude
-        dest_lon = destination.longitude
-        api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
-        url = f'https://api.openweathermap.org/data/2.5/onecall?lat={dest_lat}&lon={dest_lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
-        weather_data = requests.get(url).json()
-        temp = weather_data['current']['temp']
-        dict_map['dest'].append(j)
-        dict_map['lat'].append(dest_lat)
-        dict_map['lon'].append(dest_lon)
-        dict_map['temp'].append(temp)
+        if destination == None:
+            pass
+        else:
+            dest_lat = destination.latitude
+            dest_lon = destination.longitude
+            api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
+            url = f'https://api.openweathermap.org/data/2.5/onecall?lat={dest_lat}&lon={dest_lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
+            weather_data = requests.get(url).json()
+            temp = weather_data['current']['temp']
+            dict_map['dest'].append(j)
+            dict_map['lat'].append(dest_lat)
+            dict_map['lon'].append(dest_lon)
+            dict_map['temp'].append(temp)
     return dict_map
 
 def map_temperature():
     map_data = store_temperature()
     df = pd.DataFrame.from_dict(map_data, orient='columns')
-    fig = px.scatter_mapbox(df, hover_data=['temp', 'dest'],
-                                lat='lat', lon='lon',
-                                color='temp',  
-                                color_continuous_scale=px.colors.sequential.Sunsetdark)
-    fig.update_layout(
-    mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
-    fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
+    if df.empty == True:
+        st.error('Unfortunately, we can not find your country in our database')
+    else:
+        fig = px.scatter_mapbox(df, hover_data=['temp', 'dest'],
+                                    lat='lat', lon='lon',
+                                    color='temp',  
+                                    color_continuous_scale=px.colors.sequential.Sunsetdark)
+        fig.update_layout(
+        mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
+        fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
     
-    st.plotly_chart(fig)
+        st.plotly_chart(fig)
     
-
-
 
 # Locate
 geolocator = Nominatim(user_agent="WeatherApp")
 g = geocoder.ip('me')
 address = st.text_input("Please enter a city name", g.city)
 st.button('Search')
-location = geolocator.geocode(address)
+location = geolocator.geocode(address, language='en')
 
 try:
     lat = location.latitude
@@ -124,7 +128,6 @@ country = country_finder.get('country', '')
 
 
 # Data import
-
 
 api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
 url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
