@@ -4,11 +4,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly.graph_objects as go
 import json
 import geopy
 from geopy.geocoders import Nominatim
 import geocoder
 import requests
+import datapackage
+
+px.set_mapbox_access_token('pk.eyJ1IjoiZGVubmlzc2lvIiwiYSI6ImNrbXg4NjhvZDBtOHkyb24xd3p5anE3NWYifQ.2U5ETPfl1WL1aGZFy5DZmA')
 
 #styling
 hide_menu_style = """
@@ -54,14 +58,58 @@ def daily_plot_wind(daily_wind_speed):
     df = df.set_index("Date/Time")
     return df
 
+def find_countries(countries):
+    data =  pd.read_csv('data/world-cities_csv.csv')
+    result = data.loc[data['country'] == f'{countries}']
+    return result
+
+def find_subcountries():
+    our_country = find_countries(country)
+    unique_subcountry = our_country.drop_duplicates(subset ="subcountry",keep = "first")
+    list_subcountries = unique_subcountry["name"].to_numpy()
+    return list_subcountries
+
+def store_temperature():
+    list_destinations = find_subcountries()
+    dict_map = {"dest": [], "lat": [], "lon": [], "temp": []}
+    for i in range(0,len(list_destinations)):
+        j = list_destinations[i]
+        destination = geolocator.geocode(j)
+        dest_lat = destination.latitude
+        dest_lon = destination.longitude
+        api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
+        url = f'https://api.openweathermap.org/data/2.5/onecall?lat={dest_lat}&lon={dest_lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
+        weather_data = requests.get(url).json()
+        temp = weather_data['current']['temp']
+        dict_map['dest'].append(j)
+        dict_map['lat'].append(dest_lat)
+        dict_map['lon'].append(dest_lon)
+        dict_map['temp'].append(temp)
+    return dict_map
+
+def map_temperature():
+    map_data = store_temperature()
+    df = pd.DataFrame.from_dict(map_data, orient='columns')
+    fig = px.scatter_mapbox(df, hover_data=['temp', 'dest'],
+                                lat='lat', lon='lon',
+                                color='temp',  
+                                color_continuous_scale=px.colors.sequential.Sunsetdark)
+    fig.update_layout(
+    mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
+    fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
+    
+    st.plotly_chart(fig)
+    
+
+
+
 # Locate
-geolocator = Nominatim(user_agent="Your_Name")
+geolocator = Nominatim(user_agent="WeatherApp")
 g = geocoder.ip('me')
-your_location = geolocator.reverse(f"{g.lat},{g.lng}")
-address = st.text_input("Please enter a city name", your_location)
+address = st.text_input("Please enter a city name", g.city)
 st.button('Search')
 location = geolocator.geocode(address)
-captured_address = geolocator.reverse(f"{location.latitude},{location.longitude}")
+
 try:
     lat = location.latitude
     lon = location.longitude
@@ -69,8 +117,9 @@ except:
     st.error("This city is not known to our system. Please try another city.")
     st.stop()
 
-
-
+reverse_loc = geolocator.reverse(f"{lat},{lon}", language='en')
+country_finder = reverse_loc.raw['address']
+country = country_finder.get('country', '')
 
 
 
@@ -125,7 +174,7 @@ for entry in daily:
 
 
 
-st.write(f"Current City: {captured_address}")
+st.write(f"Current City: {location}")
 st.write("Current weather description: " + current_weather_description)
 st.write(f"Current temperature: {current_temperature}°C")
 st.write("Wind speed:")
@@ -145,5 +194,6 @@ st.write("___________________")
 #""")
 
 
-st.line_chart(hourly_plot_temp(hourly_temperature))
+st.area_chart(hourly_plot_temp(hourly_temperature))
 st.line_chart(daily_plot_temp(daily_temperature))
+map_temperature()
