@@ -8,6 +8,7 @@ import json
 import geopy
 from geopy.geocoders import Nominatim
 import geocoder
+import requests
 
 #styling
 hide_menu_style = """
@@ -35,9 +36,10 @@ def daily_plot_temp(daily_temperature):
     df = pd.DataFrame(list(daily_temperature.items()),columns = ['Date','Temperature']) #gathered data from dict into Dataframe
     df[['day','min','max','night','morn']] = pd.DataFrame(df['Temperature'].to_list(), columns=['day','min', 'max', 'night', 'morn']) #split the data stored in the temperature list into individual columns
     del df['Temperature'] #delete column as information is now in seperate columns
-    #plot min, max and day temperature in a diagramm (three lines)
+    #select to plot min, max and day temperature in a diagramm (three lines)
     df = df.set_index("Date")[["day","min","max"]]
-    return df
+    cnt = st.slider('Select how many days of prediction you want', min_value=3, max_value=7) #slider that allows to change the length of the prediction
+    return df.iloc[0:cnt,0:3]
 
 #'''define callable function requiring hourly temperature from the openweathermap API'''
 def hourly_plot_temp(hourly_temperature):
@@ -60,7 +62,6 @@ address = st.text_input("Please enter a city name", your_location)
 st.button('Search')
 location = geolocator.geocode(address)
 captured_address = geolocator.reverse(f"{location.latitude},{location.longitude}")
-
 try:
     lat = location.latitude
     lon = location.longitude
@@ -70,9 +71,12 @@ except:
 
 
 
+
+
+
 # Data import
 
-import requests
+
 api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
 url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
 data = requests.get(url).json()
@@ -143,5 +147,3 @@ st.write("___________________")
 
 st.line_chart(hourly_plot_temp(hourly_temperature))
 st.line_chart(daily_plot_temp(daily_temperature))
-
-
