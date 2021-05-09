@@ -11,6 +11,7 @@ from geopy.geocoders import Nominatim
 import geocoder
 import requests
 import datapackage
+from PIL import Image
 
 px.set_mapbox_access_token('pk.eyJ1IjoiZGVubmlzc2lvIiwiYSI6ImNrbXg4NjhvZDBtOHkyb24xd3p5anE3NWYifQ.2U5ETPfl1WL1aGZFy5DZmA')
 data_cities =  pd.read_csv('data/world-cities_csv.csv')
@@ -71,7 +72,7 @@ def find_subcountries():
 
 def store_temperature():
     list_destinations = find_subcountries()
-    dict_map = {"dest": [], "lat": [], "lon": [], "temp": []}
+    dict_map = {"dest": [], "lat": [], "lon": [], "temp": []}#, "icon": []}
     for i in range(0,len(list_destinations)):
         j = list_destinations[i]
         destination = geolocator.geocode(j)
@@ -96,14 +97,12 @@ def map_temperature():
     if df.empty == True:
         st.error('Unfortunately, we can not find your country in our database')
     else:
-        fig = px.scatter_mapbox(df, hover_data=['temp', 'dest'],
-                                    lat='lat', lon='lon',
-                                    color='temp',  
+        fig = px.scatter_mapbox(df, hover_data=['temp', 'dest'], lat='lat', lon='lon',
+                                    color='temp',
                                     color_continuous_scale=px.colors.sequential.Sunsetdark)
         fig.update_layout(
         mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
         fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
-    
         st.plotly_chart(fig)
     
 
@@ -128,16 +127,17 @@ country = country_finder.get('country', '')
 
 
 # Data import
-
 api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
 url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
 data = requests.get(url).json()
 
 #current weather information
 current_weather_description = data['current']['weather'][0]['description']
+current_weather_icon = data['current']['weather'][0]['icon']
 current_temperature = data['current']['temp']
 current_wind_deg = data['current']['wind_deg']
 current_wind_speed = data['current']['wind_speed']
+
 
 #hourly temperature
 from datetime import datetime
@@ -179,6 +179,8 @@ for entry in daily:
 
 st.write(f"Current City: {location}")
 st.write("Current weather description: " + current_weather_description)
+url_img = f"images/{current_weather_icon}.png"
+st.image(Image.open(url_img))
 st.write(f"Current temperature: {current_temperature}°C")
 st.write("Wind speed:")
 st.bar_chart(daily_plot_wind(daily_wind_speed))
