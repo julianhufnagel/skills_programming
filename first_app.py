@@ -94,14 +94,14 @@ country = country_finder.get('country', '') #find country of specified city
 url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
 data = requests.get(url).json()
 
-#current weather information
+#access current weather information
 current_weather_description = data['current']['weather'][0]['description']
 current_weather_icon = data['current']['weather'][0]['icon']
 current_temperature = data['current']['temp']
 current_wind_deg = data['current']['wind_deg']
 current_wind_speed = data['current']['wind_speed']
 
-#hourly temperature
+#access single entries within hourly temperature
 from datetime import datetime
 hourly = data['hourly']
 hourly_temperature = {}
@@ -109,28 +109,28 @@ for entry in hourly:
     dt_object = datetime.fromtimestamp(entry['dt'])
     hourly_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['temp'] 
 
-#daily temperature
+#access single entries within daily temperature
 daily = data['daily']
 daily_temperature = {}
 for entry in daily:
     dt_object = datetime.fromtimestamp(entry['dt'])
     daily_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = [entry['temp']['day'], entry['temp']['min'], entry['temp']['max'], entry['temp']['night'], entry['temp']['morn']]
 
-#minutely precipitation
+#access single entries within minutely precipitation
 minutely = data['minutely']
 minutely_precipitation = {}
 for entry in minutely:
     dt_object = datetime.fromtimestamp(entry['dt'])
     minutely_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
 
-#daily wind direction
+#access single entries within daily wind direction
 daily = data['daily']
 daily_wind_deg = {}
 for entry in daily:
     dt_object = datetime.fromtimestamp(entry['dt'])
     daily_wind_deg[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = entry['wind_deg']
 
-#daily wind speed
+#access single entries within daily wind speed
 daily = data['daily']
 daily_wind_speed = {}
 for entry in daily:
