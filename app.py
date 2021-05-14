@@ -121,7 +121,7 @@ daily_plot_temp(daily_temperature) #call function to see output
 '''3. Block (Elena)
 Alle relevanten Darstellungen zu Nds (Python: seaborn, plotly, …)'''
 
-'''define callable function requiring hourly temperature from the openweathermap API'''
+'''define callable function requiring minutely precipitation from the openweathermap API'''
 def minutely_plot_temp(minutely_precipitation):
     df = pd.DataFrame(list(minutely_precipitation.items()),columns = ['Date/Time','Precipitation']) #dictionary into dataframe
     df.index = pd.to_datetime(df.index, unit='D') #convert minutely output to another unit ?
