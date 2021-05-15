@@ -63,6 +63,13 @@ minutely_precipitation = {}
 for entry in minutely:
     dt_object = datetime.fromtimestamp(entry['dt'])
     minutely_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
+    
+#hourly precipitation/rain
+hourly = data['hourly']
+hourly_precipitation = {}
+for entry in hourly:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    hourly_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
 
 #daily wind direction
 daily = data['daily']
