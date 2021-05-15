@@ -122,6 +122,23 @@ minutely_precipitation = {}
 for entry in minutely:
     dt_object = datetime.fromtimestamp(entry['dt'])
     minutely_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
+        
+#access rain volume for last hour in mm
+current_rain_1h = data['current']['rain']['1h']
+        
+#access rain volume hourly in mm
+hourly = data['hourly']
+hourly_rain = {}
+for entry in hourly:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    hourly_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']['1h']
+
+#access daily precipitation volume in mm
+daily = data['daily']
+daily_rain = {}
+for entry in daily:
+    dt_object = datetime.fromtimestamp(entry['dt'])
+    hourly_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']
 
 #access single entries within daily wind direction
 daily = data['daily']
