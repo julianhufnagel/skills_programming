@@ -69,8 +69,11 @@ hourly = data['hourly']
 hourly_precipitation = {}
 for entry in hourly:
     dt_object = datetime.fromtimestamp(entry['dt'])
-    hourly_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
-
+    if  'rain' in entry:
+        hourly_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']['1h']
+    else:
+        hourly_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = 0
+print(hourly_precipitation)
 #daily wind direction
 daily = data['daily']
 daily_wind_deg = {}

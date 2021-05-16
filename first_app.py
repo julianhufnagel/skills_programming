@@ -124,7 +124,12 @@ for entry in minutely:
     minutely_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
         
 #access rain volume for last hour in mm
-current_rain_1h = data['current']['rain']['1h']
+current_rain = data['current']
+for entry in current_rain:
+    if 'rain' in entry:
+        current_rain_1h = data['current']['rain']['1h']
+    else:
+        current_rain_1h = 0
         
 #access rain volume hourly in mm
 hourly = data['hourly']
