@@ -131,14 +131,14 @@ hourly = data['hourly']
 hourly_rain = {}
 for entry in hourly:
     dt_object = datetime.fromtimestamp(entry['dt'])
-    hourly_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']['1h']
+    hourly_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']['1h']
 
 #access daily precipitation volume in mm
 daily = data['daily']
 daily_rain = {}
 for entry in daily:
     dt_object = datetime.fromtimestamp(entry['dt'])
-    hourly_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']
+    daily_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']
 
 #access single entries within daily wind direction
 daily = data['daily']
