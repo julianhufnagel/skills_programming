@@ -135,15 +135,21 @@ for entry in current_rain:
 hourly = data['hourly']
 hourly_rain = {}
 for entry in hourly:
-    dt_object = datetime.fromtimestamp(entry['dt'])
-    hourly_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']['1h']
+        if 'rain' in entry:
+                dt_object = datetime.fromtimestamp(entry['dt'])
+                hourly_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']['1h']
+        else:
+                hourly_rain = 0
 
 #access daily precipitation volume in mm
 daily = data['daily']
 daily_rain = {}
 for entry in daily:
-    dt_object = datetime.fromtimestamp(entry['dt'])
-    daily_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']
+        if 'rain' in entry:
+                dt_object = datetime.fromtimestamp(entry['dt'])
+                daily_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']
+        else:
+                daily_rain = 0
 
 #access single entries within daily wind direction
 daily = data['daily']
