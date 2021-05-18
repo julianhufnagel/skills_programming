@@ -251,6 +251,22 @@ def map_temperature():
         mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
         fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
         st.plotly_chart(fig)
+        
+def hourly_plot_rainvolume(current_rain):
+    #'''define callable function requiring
+    #  hourly rain volume from the
+    #  openweathermap API'''
+    df = pd.DataFrame(list(current_rain.items()),columns = ['Date/Time','Rain Volume']) #dictionary into dataframe
+    df = df.set_index("Date/Time") #set up data for plot
+    return df
+
+def daily_plot_precipitation(daily_rain):
+    #'''define callable function requiring
+    #  daily precipitation from the
+    #  openweathermap API'''
+    df = pd.DataFrame(list(daily_rain.items()),columns = ['Date/Time','Precipitation']) #dictionary into dataframe
+    df = df.set_index("Date/Time") #set up data for plot
+    return df
     
 
 #############################################
