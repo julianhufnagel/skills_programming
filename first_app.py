@@ -106,21 +106,18 @@ from datetime import datetime
 hourly = data['hourly']
 hourly_temperature = {}
 for entry in hourly:
-    dt_object = datetime.fromtimestamp(entry['dt'])
     hourly_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['temp'] 
 
 #access single entries within daily temperature
 daily = data['daily']
 daily_temperature = {}
 for entry in daily:
-    dt_object = datetime.fromtimestamp(entry['dt'])
     daily_temperature[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = [entry['temp']['day'], entry['temp']['min'], entry['temp']['max'], entry['temp']['night'], entry['temp']['morn']]
 
 #access single entries within minutely precipitation
 minutely = data['minutely']
 minutely_precipitation = {}
 for entry in minutely:
-    dt_object = datetime.fromtimestamp(entry['dt'])
     minutely_precipitation[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['precipitation']
         
 #access rain volume for last hour in mm
@@ -136,33 +133,29 @@ hourly = data['hourly']
 hourly_rain = {}
 for entry in hourly:
         if 'rain' in entry:
-                dt_object = datetime.fromtimestamp(entry['dt'])
-                hourly_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']['1h']
+                hourly_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = [entry['rain']['1h'], entry['pop']]
         else:
-                hourly_rain = 0
+                hourly_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = [0, entry['pop']]
 
 #access daily precipitation volume in mm
 daily = data['daily']
 daily_rain = {}
 for entry in daily:
         if 'rain' in entry:
-                dt_object = datetime.fromtimestamp(entry['dt'])
-                daily_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = entry['rain']
+                daily_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = [entry['rain'], entry['pop']]
         else:
-                daily_rain = 0
+                daily_rain[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d %H:%M:%S')] = [0, entry['pop']]
 
 #access single entries within daily wind direction
 daily = data['daily']
 daily_wind_deg = {}
 for entry in daily:
-    dt_object = datetime.fromtimestamp(entry['dt'])
     daily_wind_deg[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = entry['wind_deg']
 
 #access single entries within daily wind speed
 daily = data['daily']
 daily_wind_speed = {}
 for entry in daily:
-    dt_object = datetime.fromtimestamp(entry['dt'])
     daily_wind_speed[datetime.fromtimestamp(entry['dt']).strftime('%Y-%m-%d')] = entry['wind_speed']
 
 
@@ -170,32 +163,39 @@ for entry in daily:
 # Functions
 #############################################
 
-def daily_plot_temp(daily_temperature):
+def daily_plot_temp():
     #'''define callable function 
     # for daily temperature with 
     # variables from the API'''
     df = pd.DataFrame(list(daily_temperature.items()),columns = ['Date','Temperature']) #gathered data from dict into Dataframe
     df[['day','min','max','night','morn']] = pd.DataFrame(df['Temperature'].to_list(), columns=['day','min', 'max', 'night', 'morn']) #split the data stored in the temperature list into individual columns
     del df['Temperature'] #delete column with unnecessary information
-    df = df.set_index("Date")[["day","min","max"]] #select to plot min, max and day temperature in a diagramm (three lines)
     cnt = st.slider('Select how many days of prediction you want', min_value=3, max_value=7) #slider that allows to change the length of the prediction
-    return df.iloc[0:cnt,0:3]
+    fig = go.Figure()
+    fig.add_traces(go.Scatter(x=df.iloc[0:cnt,:]['Date'], y=df.iloc[0:cnt,:]['day'], mode='lines', name = 'daily mean', line=dict(color='green', width=2)))
+    fig.add_traces(go.Scatter(x=df.iloc[0:cnt,:]['Date'], y=df.iloc[0:cnt,:]['min'], mode='lines', name = 'daily min', line=dict(color='blue', width=2)))
+    fig.add_traces(go.Scatter(x=df.iloc[0:cnt,:]['Date'], y=df.iloc[0:cnt,:]['max'], mode='lines', name = 'daily max', line=dict(color='red', width=2)))
+    #df.iloc[0:cnt,0:3], x = 'Date', y =  px.line(df, x= 'Date', y = 'Temperature', title="Daily temperature prediction")
+    #fig.add_trace(x=df.iloc[0:cnt,:]['Date'], y=df.iloc[0:cnt,:]['min'], mode='lines')
+    #fig.add_trace(x=df.iloc[0:cnt,:]['Date'], y=df.iloc[0:cnt,:]['max'], mode='lines')
+    return fig
 
-def hourly_plot_temp(hourly_temperature):
+def hourly_plot_temp():
     #'''define callable function requiring
     #  hourly temperature from the
     #  openweathermap API'''
     df = pd.DataFrame(list(hourly_temperature.items()),columns = ['Date/Time','Temperature']) #dictionary into dataframe
-    df = df.set_index("Date/Time") #set up data for plot
-    return df
+    fig = px.line(df, x='Date/Time', y='Temperature',
+             labels={'Temperature':'Temperature in °C'})
+    return fig
 
-def daily_plot_wind(daily_wind_speed):
+def daily_plot_wind():
     #'''define callable function requiring
     #  daily wind speed from the
     #  openweathermap API'''
-    df = pd.DataFrame(list(daily_wind_speed.items()),columns = ['Date/Time','Windspeed']) #dictionary into dataframe
-    df = df.set_index("Date/Time") #set up data for bar plot
-    return df
+    df = pd.DataFrame(list(daily_wind_speed.items()),columns = ['Date','Windspeed']) #dictionary into dataframe
+    fig = px.bar(df, x ='Date', y = 'Windspeed')
+    return fig
 
 def find_countries(countries):
     #'''callable function 
@@ -238,11 +238,13 @@ def store_temperature():
     return dict_map
 
 def map_temperature():
-    #'''function 
-    map_data = store_temperature()
+    #'''function to illustrate data
+    #  on map'''
+    map_data = store_temperature() #call function to access data
     df = pd.DataFrame.from_dict(map_data, orient='columns')
     if df.empty == True:
         st.error('Unfortunately, we can not find your country in our database')
+
     else:
         fig = px.scatter_mapbox(df, hover_data=['temp', 'dest'], lat='lat', lon='lon',
                                     color='temp',
@@ -250,23 +252,31 @@ def map_temperature():
         fig.update_layout(
         mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
         fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
-        st.plotly_chart(fig)
+    return fig
         
-def hourly_plot_rainvolume(current_rain):
+def hourly_plot_rainvolume():
     #'''define callable function requiring
     #  hourly rain volume from the
     #  openweathermap API'''
-    df = pd.DataFrame(list(current_rain.items()),columns = ['Date/Time','Rain Volume']) #dictionary into dataframe
-    df = df.set_index("Date/Time") #set up data for plot
-    return df
+    df = pd.DataFrame(list(hourly_rain.items()),columns = ['Date/Time','Rain Volume']) #dictionary into dataframe
+    df[['rain', 'pop']] = pd.DataFrame(df['Rain Volume'].to_list(), columns=['rain', 'pop']) #split the data stored into individual columns
+    del df['Rain Volume'] #delete column with unnecessary information
+    fig = px.bar(df, x='Date/Time', y='rain',
+             hover_data=['pop'],
+             labels={'rain':'Rain in xxx'})
+    return fig
 
-def daily_plot_precipitation(daily_rain):
+def daily_plot_precipitation():
     #'''define callable function requiring
     #  daily precipitation from the
     #  openweathermap API'''
     df = pd.DataFrame(list(daily_rain.items()),columns = ['Date/Time','Precipitation']) #dictionary into dataframe
-    df = df.set_index("Date/Time") #set up data for plot
-    return df
+    df[['prec', 'pop']] = pd.DataFrame(df['Precipitation'].to_list(), columns=['prec', 'pop']) #split the data stored into individual columns
+    del df['Precipitation'] #delete column with unnecessary information
+    fig = px.bar(df, x='Date/Time', y='prec',
+             hover_data=['pop'],
+             labels={'prec':'Rain in xxx'})
+    return fig
     
 
 #############################################
@@ -281,11 +291,13 @@ url_img = f"images/{current_weather_icon}.png"
 st.image(Image.open(url_img))
 st.write(f"Current temperature: {current_temperature}°C")
 st.write("Wind speed:")
-st.bar_chart(daily_plot_wind(daily_wind_speed))
+st.plotly_chart(daily_plot_wind())
 st.write("___________________")
-st.area_chart(hourly_plot_temp(hourly_temperature))
-st.line_chart(daily_plot_temp(daily_temperature))
-map_temperature()
+st.plotly_chart(hourly_plot_temp())
+st.plotly_chart(daily_plot_temp())
+st.plotly_chart(hourly_plot_rainvolume())
+st.plotly_chart(daily_plot_precipitation())
+st.plotly_chart(map_temperature())
 
 
 # st.write("""Address
