@@ -277,6 +277,46 @@ def daily_plot_precipitation():
              hover_data=['pop'],
              labels={'prec':'Rain in xxx'})
     return fig
+
+
+def store_rainvolume():
+    #'''function preparing data 
+    # for the map with dest, 
+    # lat, lon, rain'''
+    list_destinations = find_subcountries()
+    dict_map = {"dest": [], "lat": [], "lon": [], "rain": []} #empty dict to append data from destinations
+    for i in range(0,len(list_destinations)):
+        j = list_destinations[i]
+        destination = geolocator.geocode(j)
+        if destination == None: #avoiding errors from not found destination
+            pass
+        else:
+            dest_lat = destination.latitude
+            dest_lon = destination.longitude
+            api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
+            url = f'https://api.openweathermap.org/data/2.5/onecall?lat={dest_lat}&lon={dest_lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
+            weather_data = requests.get(url).json()
+            rain = weather_data['current']['rain']
+            #append weather data to dict
+            dict_map['dest'].append(j)
+            dict_map['lat'].append(dest_lat)
+            dict_map['lon'].append(dest_lon)
+            dict_map['rain'].append(rain)
+    return dict_map
+
+def map_rainvolume():
+    #'''function to illustrate data
+    #  on map'''
+    map_data = store_rainvolume() #call function to access data
+    df = pd.DataFrame.from_dict(map_data, orient='columns')
+    if df.empty == True:
+        st.error('Unfortunately, we can not find your country in our database')
+
+    else:
+        fig = px.scatter_mapbox(df, hover_data=['rain', 'dest'], lat='lat', lon='lon',
+                                    color='rain')
+    return fig
+
     
 
 #############################################
