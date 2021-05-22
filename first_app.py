@@ -263,7 +263,7 @@ def hourly_plot_rainvolume():
     del df['Rain Volume'] #delete column with unnecessary information
     fig = px.bar(df, x='Date/Time', y='rain',
              hover_data=['pop'],
-             labels={'rain':'Rain in xxx'})
+             labels={'rain':'Rain in mm'})
     return fig
 
 def daily_plot_precipitation():
@@ -275,7 +275,7 @@ def daily_plot_precipitation():
     del df['Precipitation'] #delete column with unnecessary information
     fig = px.bar(df, x='Date/Time', y='prec',
              hover_data=['pop'],
-             labels={'prec':'Rain in xxx'})
+             labels={'prec':'Rain in mm'})
     return fig
 
 
