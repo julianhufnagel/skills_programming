@@ -237,7 +237,7 @@ def store_temperature():
             dict_map['temp'].append(temp)
     return dict_map
 
-def map_temperature():
+def map_weather():
     #'''function to illustrate data
     #  on map'''
     map_data = store_temperature() #call function to access data
@@ -252,7 +252,16 @@ def map_temperature():
         fig.update_layout(
         mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
         fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
+    map_data = store_rainvolume() #call function to access data
+    df = pd.DataFrame.from_dict(map_data, orient='columns')
+    if df.empty == True:
+        st.error('Unfortunately, we can not find your country in our database')
+
+    else:
+        fig = px.scatter_mapbox(df, hover_data=['rain', 'dest'], lat='lat', lon='lon',
+                                    color='rain')   
     return fig
+   
         
 def hourly_plot_rainvolume():
     #'''define callable function requiring
@@ -304,18 +313,6 @@ def store_rainvolume():
             dict_map['rain'].append(rain)
     return dict_map
 
-def map_rainvolume():
-    #'''function to illustrate data
-    #  on map'''
-    map_data = store_rainvolume() #call function to access data
-    df = pd.DataFrame.from_dict(map_data, orient='columns')
-    if df.empty == True:
-        st.error('Unfortunately, we can not find your country in our database')
-
-    else:
-        fig = px.scatter_mapbox(df, hover_data=['rain', 'dest'], lat='lat', lon='lon',
-                                    color='rain')
-    return fig
 
     
 
