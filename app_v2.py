@@ -31,8 +31,8 @@ from PIL import Image
 # Access Keys
 #############################################
 
-px.set_mapbox_access_token('pk.eyJ1IjoiZGVubmlzc2lvIiwiYSI6ImNrbXg4NjhvZDBtOHkyb24xd3p5anE3NWYifQ.2U5ETPfl1WL1aGZFy5DZmA') #plotly
-api_key = 'aad6e7a0184b7699b8dbd1f773f442d8' #openweathermap
+px.set_mapbox_access_token('pk.eyJ1IjoiZGVubmlzc2lvIiwiYSI6ImNrbXg4NjhvZDBtOHkyb24xd3p5anE3NWYifQ.2U5ETPfl1WL1aGZFy5DZmA') #plotly api key
+api_key = 'aad6e7a0184b7699b8dbd1f773f442d8' #openweathermap api key
 
 
 #############################################
@@ -209,7 +209,7 @@ def find_subcountries():
     #'''find all subcountries
     #  in the given country'''
     our_country = find_countries(country)
-    unique_subcountry = our_country.drop_duplicates(subset ="subcountry",keep = "first")
+    unique_subcountry = our_country.drop_duplicates(subset ="subcountry",keep = "first") #only keep values once
     list_subcountries = unique_subcountry["name"].to_numpy() #make list without duplicates
     return list_subcountries
 
@@ -218,8 +218,8 @@ def store_temperature():
     # for the map with dest, 
     # lat, lon, temp'''
     list_destinations = find_subcountries()
-    dict_map = {"dest": [], "lat": [], "lon": [], "temp": []} #empty dict to append data from desitnations
-    for i in range(0,len(list_destinations)):
+    dict_map = {"dest": [], "lat": [], "lon": [], "temp": [], "rain": []} #empty dict to append data from desitnations
+    for i in range(0,len(list_destinations)): #loop through entire list
         j = list_destinations[i]
         destination = geolocator.geocode(j)
         if destination == None: #avoiding errors from not found destination
@@ -227,40 +227,38 @@ def store_temperature():
         else:
             dest_lat = destination.latitude
             dest_lon = destination.longitude
-            api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
+            api_key = 'aad6e7a0184b7699b8dbd1f773f442d8' #key for openweatherman
             url = f'https://api.openweathermap.org/data/2.5/onecall?lat={dest_lat}&lon={dest_lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
-            weather_data = requests.get(url).json()
+            weather_data = requests.get(url).json() #assign json response
             temp = weather_data['current']['temp']
+            rain = weather_data['current']
+            if 'rain' in rain: #check rain if given
+                current_rain1h = weather_data['current']['rain']['1h']
+            else:
+                current_rain1h = 0
             #append weather data to dict
             dict_map['dest'].append(j)
             dict_map['lat'].append(dest_lat)
             dict_map['lon'].append(dest_lon)
             dict_map['temp'].append(temp)
+            dict_map['rain'].append(current_rain1h)
     return dict_map
 
 def map_weather():
     #'''function to illustrate data
     #  on map'''
     map_data = store_temperature() #call function to access data
-    df = pd.DataFrame.from_dict(map_data, orient='columns')
-    if df.empty == True:
+    df = pd.DataFrame.from_dict(map_data, orient='columns') #dict to Dataframe
+    if df.empty == True: #error handling 
         st.error('Unfortunately, we can not find your country in our database')
 
-    else:
-        fig = px.scatter_mapbox(df, hover_data=['temp', 'dest'], lat='lat', lon='lon',
+    else: #information plotted on a map
+        fig = px.scatter_mapbox(df, hover_data=['dest', 'temp', 'rain'], lat='lat', lon='lon',
                                     color='temp',
                                     color_continuous_scale=px.colors.sequential.Sunsetdark)
         fig.update_layout(
-        mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m")
-        fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6)
-    map_data = store_rainvolume() #call function to access data
-    df = pd.DataFrame.from_dict(map_data, orient='columns')
-    if df.empty == True:
-        st.error('Unfortunately, we can not find your country in our database')
-
-    else:
-        fig = px.scatter_mapbox(df, hover_data=['rain', 'dest'], lat='lat', lon='lon',
-                                    color='rain')   
+        mapbox_style="mapbox://styles/dennissio/ckmx8cxq00l0317nslyw06i0m") #select map style
+        fig.update_mapboxes(center_lon = lon, center_lat = lat, zoom = 6) #set initial zoom
     return fig
    
         
@@ -287,35 +285,7 @@ def daily_plot_precipitation():
              hover_data=['pop'],
              labels={'prec':'Rain in mm'})
     return fig
-
-
-def store_rainvolume():
-    #'''function preparing data 
-    # for the map with dest, 
-    # lat, lon, rain'''
-    list_destinations = find_subcountries()
-    dict_map = {"dest": [], "lat": [], "lon": [], "rain": []} #empty dict to append data from destinations
-    for i in range(0,len(list_destinations)):
-        j = list_destinations[i]
-        destination = geolocator.geocode(j)
-        if destination == None: #avoiding errors from not found destination
-            pass
-        else:
-            dest_lat = destination.latitude
-            dest_lon = destination.longitude
-            api_key = 'aad6e7a0184b7699b8dbd1f773f442d8'
-            url = f'https://api.openweathermap.org/data/2.5/onecall?lat={dest_lat}&lon={dest_lon}&exclude=alerts&appid={api_key}&units=metric&cnt=12'
-            weather_data = requests.get(url).json()
-            rain = weather_data['current']['rain']
-            #append weather data to dict
-            dict_map['dest'].append(j)
-            dict_map['lat'].append(dest_lat)
-            dict_map['lon'].append(dest_lon)
-            dict_map['rain'].append(rain)
-    return dict_map
-
-
-    
+  
 
 #############################################
 # Frontend Layout
@@ -334,4 +304,4 @@ st.plotly_chart(hourly_plot_temp())
 st.plotly_chart(daily_plot_temp())
 st.plotly_chart(hourly_plot_rainvolume())
 st.plotly_chart(daily_plot_precipitation())
-#st.plotly_chart(map_temperature())
+st.plotly_chart(map_weather())
