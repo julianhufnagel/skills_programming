@@ -62,10 +62,6 @@ hide_menu_style = """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 st.image("https://raw.githubusercontent.com/julianhufnagel/skills_programming/main/images/Weatherapp.png")
 
-
-#st.image('https://raw.githubusercontent.com/julianhufnagel/skills_programming/main/images/Weatherapp.png?token=ARVKEKFI7OLQCZITGTGPXNDAVNR4Y')
-
-
 #############################################
 # Set location
 #############################################
@@ -287,18 +283,56 @@ def daily_plot_precipitation():
 #############################################
 # Frontend Layout
 #############################################
-
-
-st.button('Search')
-st.write(f"Current City: {location}")
-st.write("Current weather description: " + current_weather_description)
-st.image(f"https://raw.githubusercontent.com/julianhufnagel/skills_programming/main/images/{current_weather_icon}.png")
-st.write(f"Current temperature: {current_temperature}°C")
-st.write("Wind speed:")
-st.plotly_chart(daily_plot_wind())
+       
+col1_1, col2_1 = st.beta_columns([1, 3])    
+with col1_1:
+    st.button('Search')
+with col2_1:
+    st.write(f"Current City: {location}")    
+st.header("How is the weather now?")
+col1_2, col2_2 = st.beta_columns([1, 3])
+with col1_2:
+    st.image(f"https://raw.githubusercontent.com/julianhufnagel/skills_programming/main/images/{current_weather_icon}.png")
+with col2_2:
+    st.write(f"The weather is currently {current_weather_description} with {current_temperature}°C")
+    
+with st.form(key='next_hours'):    
+    st.write("And how will it be within")
+    col1_3, col2_3 = st.beta_columns([1, 1])
+    with col1_3:
+        submit_button_hours = st.form_submit_button(label='in the next hours?')
+    with col2_3:
+        submit_button_days = st.form_submit_button(label='in the next days?')
+    
+if submit_button_hours:
+    st.header("Temperatur and rainvolume for the next hours")
+    st.subheader("Temperature")
+    st.plotly_chart(hourly_plot_temp())
+    st.subheader("Rainvolume")
+    st.plotly_chart(hourly_plot_rainvolume())
+    
+if submit_button_days:
+    st.header("Temperatur and rainvolume for the next days")
+    st.subheader("Temperature")
+    st.plotly_chart(daily_plot_temp())
+    st.subheader("Rainvolume")
+    st.plotly_chart(daily_plot_precipitation())
+    
+    
 st.write("___________________")
-st.plotly_chart(hourly_plot_temp())
-st.plotly_chart(daily_plot_temp())
-st.plotly_chart(hourly_plot_rainvolume())
-st.plotly_chart(daily_plot_precipitation())
-st.plotly_chart(map_weather())
+
+with st.form(key='wind'):
+    st.write("In case you care about wind, click here")
+    submit_button_wind = st.form_submit_button(label='I care about wind')
+
+if submit_button_wind:
+    st.subheader("Wind for the next days")
+    st.plotly_chart(daily_plot_wind())
+    
+with st.form(key='map'):
+    st.write("Wanna see a cool heat map?")
+    submit_button_map = st.form_submit_button(label='Yes I do')
+
+if submit_button_map:
+    st.header("Heat Map")
+    st.plotly_chart(map_weather())
