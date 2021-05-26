@@ -283,7 +283,7 @@ def daily_plot_precipitation():
 #############################################
 # Frontend Layout
 #############################################
-       
+
 col1_1, col2_1 = st.beta_columns([1, 3])    
 with col1_1:
     st.button('Search')

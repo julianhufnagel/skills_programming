@@ -9,7 +9,7 @@ System requirements
 Python:     3.8.5
 
 Package requirements
-Streamlit:  0.79.0
+Streamlit:  0.82.0
 Pandas:     1.1.3
 Numpy:      1.19.2
 Json:       2.0.9
