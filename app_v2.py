@@ -13,7 +13,7 @@
 #############################################
 
 import streamlit as st
-import time
+from datetime import datetime
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,8 +24,6 @@ import geopy
 from geopy.geocoders import Nominatim
 import geocoder
 import requests
-import datapackage
-from PIL import Image
 
 #############################################
 # Access Keys
@@ -103,7 +101,6 @@ current_wind_deg = data['current']['wind_deg']
 current_wind_speed = data['current']['wind_speed']
 
 #access single entries within hourly temperature
-from datetime import datetime
 hourly = data['hourly']
 hourly_temperature = {}
 for entry in hourly:
