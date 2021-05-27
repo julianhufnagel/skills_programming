@@ -6,8 +6,6 @@ The Web Application uses an API service from OpenWeatherMap.
 This is an application to check the weather in every city around the world.
 Therefore, the program takes a specific city as a user input.
 Consequently, the aim of the application is to provide the user with important weather information for a specific city.
-This is an application to check weather every city around the world.
-Therefore, the program takes a specific city as a user input.
 First, the output displayed is the current weather information.
 Secondly, there is the possibility to retrieve a weather forecast for the next hours or days.
 The weather forecast consists of plots with temperature and precipitation information.
