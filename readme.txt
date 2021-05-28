@@ -15,7 +15,7 @@ Furthermore, the user can choose the data to be illustrated in a heat map.
 Usage
 To properly use this application, it is necessary to run the weather_app.py script.
 After having this done, the streamlit app can be opened with the command line "streamlit run weather_app.py".
-This opens a new tab in you internet browser with our streamlit app.
+This opens a new tab in your internet browser with our streamlit app.
 Within the web app, there are several options to show current weather and several forecasts.
 The location for which the weather should be shown can be entered via a text input box. 
 
