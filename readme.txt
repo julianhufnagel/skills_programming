@@ -32,6 +32,9 @@ Geocoder:   1.38.1
 Requests:   2.24.0
 Matplotlib: 3.3.2
 
+Data
+
+The world city data was provided by geonames.
 
 Contributing
 
@@ -41,4 +44,5 @@ Credits
 
 This project was implemented by Elena Fecher, Deniz Harimci, Julian Hufnagel and Janina Moser.
 It was initiated as a part of the course "Introduction to Programming" (by Dr. Mario Silic, University of St. Gallen).
+
 
